@@ -1,0 +1,38 @@
+/* Estilo do painel de controle (cartões de estatística por congregação).
+   Propositalmente separado de core/css/style.css (site público) para não
+   sobrescrever o tema claro/escuro nativo do Django admin. */
+
+.efraim-dashboard {
+  margin-bottom: 24px;
+}
+
+.efraim-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 12px 0 24px;
+}
+
+.efraim-stat-card {
+  background: linear-gradient(135deg, #0c1524, #142238);
+  color: #f7f5ef;
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid #d4af37;
+}
+
+.efraim-stat-card.total {
+  border-left-color: #7a1f1f;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+}
+
+.efraim-stat-card .numero {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #f0d78c;
+}
+
+.efraim-stat-card .rotulo {
+  font-size: 0.85rem;
+  color: #9aa5b6;
+}
