@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Eventos — Varões Efraim{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Eventos</h1>
+  <p>Fique por dentro da agenda do Setor 46 e das congregações.</p>
+</section>
+
+<form class="filter-bar" method="get">
+  <select name="congregacao" onchange="this.form.submit()">
+    <option value="">Todas as congregações</option>
+    {% for c in congregacoes %}
+      <option value="{{ c.id }}" {% if congregacao_selecionada == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit">Filtrar</button></noscript>
+</form>
+
+<h2 class="section-title">Próximos</h2>
+{% if proximos_eventos %}
+  <div class="card-grid">
+    {% for evento in proximos_eventos %}
+      <div class="card">
+        {% if evento.image %}<img src="{{ evento.image.url }}" alt="{{ evento.title }}">{% endif %}
+        <div class="card-body">
+          <span class="card-tag">{% if evento.congregation %}{{ evento.congregation.name }}{% else %}Setor 46{% endif %}</span>
+          <h3>{{ evento.title }}</h3>
+          <span class="meta">{{ evento.event_date|date:"d/m/Y H:i" }}{% if evento.location %} · {{ evento.location }}{% endif %}</span>
+          {% if evento.description %}<p>{{ evento.description }}</p>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">Nenhum evento programado no momento.</div>
+{% endif %}
+
+<h2 class="section-title">Já realizados</h2>
+{% if eventos_passados %}
+  <div class="card-grid">
+    {% for evento in eventos_passados %}
+      <div class="card">
+        {% if evento.image %}<img src="{{ evento.image.url }}" alt="{{ evento.title }}">{% endif %}
+        <div class="card-body">
+          <span class="card-tag">{% if evento.congregation %}{{ evento.congregation.name }}{% else %}Setor 46{% endif %}</span>
+          <h3>{{ evento.title }}</h3>
+          <span class="meta">{{ evento.event_date|date:"d/m/Y H:i" }}{% if evento.location %} · {{ evento.location }}{% endif %}</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">Nenhum evento anterior registrado.</div>
+{% endif %}
+{% endblock %}

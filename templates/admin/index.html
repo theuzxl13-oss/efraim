@@ -1,0 +1,30 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+{% if congregation_stats is not None %}
+  <div class="efraim-dashboard">
+    <h2>{% if is_geral_admin %}Membros por congregação{% else %}Sua congregação{% endif %}</h2>
+    <div class="efraim-stats-grid">
+      {% for c in congregation_stats %}
+        <div class="efraim-stat-card">
+          <div class="numero">{{ c.total_membros }}</div>
+          <div class="rotulo">{{ c.name }}</div>
+        </div>
+      {% endfor %}
+      {% if total_geral is not None %}
+        <div class="efraim-stat-card total">
+          <div class="numero">{{ total_geral }}</div>
+          <div class="rotulo">Total geral (todas as congregações)</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{{ block.super }}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+{% endblock %}

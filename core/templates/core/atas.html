@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Atas de Reuniões — Varões Efraim{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Atas de Reuniões</h1>
+  <p>Registros das reuniões do Setor 46 e das congregações.</p>
+</section>
+
+<form class="filter-bar" method="get">
+  <select name="congregacao" onchange="this.form.submit()">
+    <option value="">Todas as congregações</option>
+    {% for c in congregacoes %}
+      <option value="{{ c.id }}" {% if congregacao_selecionada == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit">Filtrar</button></noscript>
+</form>
+
+{% if atas %}
+  <div class="card-grid">
+    {% for ata in atas %}
+      <div class="card">
+        <div class="card-body">
+          <span class="card-tag">{% if ata.congregation %}{{ ata.congregation.name }}{% else %}Setor 46{% endif %}</span>
+          <h3>{{ ata.title }}</h3>
+          <span class="meta">{{ ata.meeting_date|date:"d/m/Y" }}</span>
+          {% if ata.notes %}<p>{{ ata.notes|truncatewords:30 }}</p>{% endif %}
+          {% if ata.file %}<a class="btn" href="{{ ata.file.url }}" target="_blank" rel="noopener">Baixar PDF →</a>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">Nenhuma ata publicada ainda.</div>
+{% endif %}
+{% endblock %}

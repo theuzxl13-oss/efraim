@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1>Bem-vindo, Varão Efraim</h1>
+  <p>Acompanhe aqui os próximos eventos e as atas das reuniões do Setor 46. Deus lhe abençoe!</p>
+</section>
+
+<h2 class="section-title">Próximos eventos</h2>
+{% if proximos_eventos %}
+  <div class="card-grid">
+    {% for evento in proximos_eventos %}
+      <div class="card">
+        {% if evento.image %}<img src="{{ evento.image.url }}" alt="{{ evento.title }}">{% endif %}
+        <div class="card-body">
+          <span class="card-tag">{% if evento.congregation %}{{ evento.congregation.name }}{% else %}Setor 46{% endif %}</span>
+          <h3>{{ evento.title }}</h3>
+          <span class="meta">{{ evento.event_date|date:"d/m/Y H:i" }}{% if evento.location %} · {{ evento.location }}{% endif %}</span>
+          {% if evento.description %}<p>{{ evento.description|truncatewords:22 }}</p>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">Nenhum evento programado no momento.</div>
+{% endif %}
+<p><a class="btn" href="{% url 'core:eventos' %}">Ver todos os eventos →</a></p>
+
+<h2 class="section-title">Últimas atas de reuniões</h2>
+{% if ultimas_atas %}
+  <div class="card-grid">
+    {% for ata in ultimas_atas %}
+      <div class="card">
+        <div class="card-body">
+          <span class="card-tag">{% if ata.congregation %}{{ ata.congregation.name }}{% else %}Setor 46{% endif %}</span>
+          <h3>{{ ata.title }}</h3>
+          <span class="meta">{{ ata.meeting_date|date:"d/m/Y" }}</span>
+          {% if ata.file %}<a class="btn" href="{{ ata.file.url }}" target="_blank" rel="noopener">Baixar PDF →</a>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">Nenhuma ata publicada ainda.</div>
+{% endif %}
+<p><a class="btn" href="{% url 'core:atas' %}">Ver todas as atas →</a></p>
+{% endblock %}
