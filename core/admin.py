@@ -90,8 +90,31 @@ class CongregationScopedAdmin(admin.ModelAdmin):
         return super().has_delete_permission(request, obj)
 
 
+class GeralOnlyAdmin(admin.ModelAdmin):
+    """Base para modelos visíveis/editáveis só por administradores gerais
+    (Congregações e Usuários) — administradores de congregação não acessam."""
+
+    def _allowed(self, request):
+        return bool(request.user.is_active and request.user.is_staff and is_geral(request))
+
+    def has_module_permission(self, request):
+        return self._allowed(request)
+
+    def has_view_permission(self, request, obj=None):
+        return self._allowed(request)
+
+    def has_add_permission(self, request):
+        return self._allowed(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self._allowed(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self._allowed(request)
+
+
 @admin.register(Congregation, site=site)
-class CongregationAdmin(admin.ModelAdmin):
+class CongregationAdmin(GeralOnlyAdmin):
     list_display = ("name", "total_membros", "created_at")
     search_fields = ("name",)
 
@@ -99,14 +122,6 @@ class CongregationAdmin(admin.ModelAdmin):
         return obj.members.count()
 
     total_membros.short_description = "Total de membros"
-
-    def has_module_permission(self, request):
-        return request.user.is_active and (request.user.is_staff and is_geral(request))
-
-    has_view_permission = has_module_permission
-    has_add_permission = has_module_permission
-    has_change_permission = lambda self, request, obj=None: request.user.is_staff and is_geral(request)
-    has_delete_permission = lambda self, request, obj=None: request.user.is_staff and is_geral(request)
 
 
 @admin.register(Member, site=site)
@@ -143,7 +158,7 @@ class AdminProfileInline(admin.StackedInline):
 
 
 @admin.register(User, site=site)
-class UserAdmin(DjangoUserAdmin):
+class UserAdmin(GeralOnlyAdmin, DjangoUserAdmin):
     inlines = [AdminProfileInline]
     list_display = ("username", "get_full_name", "is_staff", "is_superuser", "escopo")
 
@@ -154,11 +169,3 @@ class UserAdmin(DjangoUserAdmin):
         return profile.congregation.name
 
     escopo.short_description = "Acesso"
-
-    def has_module_permission(self, request):
-        return is_geral(request) and request.user.is_active and request.user.is_staff
-
-    has_view_permission = has_module_permission
-    has_add_permission = has_module_permission
-    has_change_permission = lambda self, request, obj=None: request.user.is_staff and is_geral(request)
-    has_delete_permission = lambda self, request, obj=None: request.user.is_staff and is_geral(request)
