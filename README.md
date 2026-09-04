@@ -6,9 +6,11 @@ Sistema de cadastro de membros, atas de reuniões e eventos para os Varões Efra
 - **Site público** (`/`, `/eventos/`, `/atas/`): qualquer pessoa pode ver os eventos e
   atas publicados, sem precisar de login.
 - **Painel administrativo** (`/admin/`): acesso restrito por login e senha.
-  - **Admin geral**: vê e gerencia todas as congregações, membros, atas e eventos, e
-    também cria os logins dos administradores de cada congregação.
-  - **Admin de congregação**: só vê e gerencia os dados da sua própria congregação.
+  - **Admin geral**: vê e gerencia todas as congregações e membros, cria os logins
+    dos administradores de cada congregação, e é o único que gerencia atas de
+    reuniões e eventos (inclusive a publicação deles no site público).
+  - **Admin de congregação**: só cadastra, edita e exclui membros da própria
+    congregação — não tem acesso a atas, eventos, outras congregações ou usuários.
 
 ## Como rodar no seu computador
 
@@ -38,8 +40,9 @@ Logado como administrador geral:
    congregação daquele administrador. Isso faz com que ele só veja e edite os
    dados da própria congregação.
 4. Adicione esse usuário ao grupo **"Admin de Congregação"** (na seção de grupos,
-   dentro da mesma tela) — é esse grupo que dá permissão de gerenciar membros,
-   atas e eventos.
+   dentro da mesma tela) — é esse grupo que dá permissão de cadastrar, editar e
+   excluir membros. Ele não dá acesso a atas nem eventos — isso fica só com o
+   administrador geral.
 5. Para um administrador com acesso geral (como você e o Kauan), marque
    **"Membro da equipe"** e **"Superusuário"**, e deixe o campo de congregação em
    branco.

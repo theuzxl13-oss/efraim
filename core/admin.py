@@ -132,7 +132,7 @@ class MemberAdmin(CongregationScopedAdmin):
 
 
 @admin.register(Minute, site=site)
-class MinuteAdmin(CongregationScopedAdmin):
+class MinuteAdmin(GeralOnlyAdmin):
     list_display = ("title", "congregation", "meeting_date", "published")
     list_filter = ("congregation", "published")
     search_fields = ("title", "notes")
@@ -140,7 +140,7 @@ class MinuteAdmin(CongregationScopedAdmin):
 
 
 @admin.register(Event, site=site)
-class EventAdmin(CongregationScopedAdmin):
+class EventAdmin(GeralOnlyAdmin):
     list_display = ("title", "congregation", "event_date", "location", "published")
     list_filter = ("congregation", "published")
     search_fields = ("title", "description", "location")
