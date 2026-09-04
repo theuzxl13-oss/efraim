@@ -25,7 +25,7 @@ class AdminProfile(models.Model):
     )
     congregation = models.ForeignKey(
         Congregation,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name="admins",
@@ -81,7 +81,7 @@ class Member(models.Model):
 class Minute(models.Model):
     congregation = models.ForeignKey(
         Congregation,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="minutes",
         verbose_name="Congregação",
         null=True,
@@ -116,7 +116,7 @@ class Minute(models.Model):
 class Event(models.Model):
     congregation = models.ForeignKey(
         Congregation,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="events",
         verbose_name="Congregação",
         null=True,

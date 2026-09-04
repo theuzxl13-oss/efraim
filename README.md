@@ -87,6 +87,36 @@ Contas gratuitas do PythonAnywhere precisam ser "renovadas" uma vez por mês (ba
 entrar no painel e clicar em "Run until 1 month from today" na aba Web), senão o
 site é pausado automaticamente.
 
+## Backup dos dados
+
+Para nunca perder um cadastro por engano (exclusão acidental, erro humano, etc.),
+existe um comando que salva uma cópia de todos os dados (congregações, membros,
+atas, eventos e logins) em um arquivo JSON dentro da pasta `backups/`:
+
+```bash
+venv/bin/python manage.py backup_db
+```
+
+Ele mantém automaticamente os **30 backups mais recentes** e apaga os mais antigos.
+No PythonAnywhere, configure isso para rodar sozinho todo dia:
+
+1. Vá na aba **Tasks** do painel do PythonAnywhere.
+2. Em "Create a scheduled task", escolha um horário (ex: 3:00) e cole o comando:
+   `/home/varoesefraim/efraim/venv/bin/python /home/varoesefraim/efraim/manage.py backup_db`
+
+**Restaurar um backup** (em caso de necessidade):
+
+```bash
+venv/bin/python manage.py loaddata backups/backup_AAAAMMDD_HHMMSS.json
+```
+
+Importante: a pasta `backups/` fica só no servidor (nunca vai para o GitHub, que é
+público) e é um backup *no mesmo lugar* onde o site roda — protege contra erro
+humano dentro do sistema, mas não contra a perda da conta do PythonAnywhere em si.
+Para uma segurança extra, baixe de vez em quando um arquivo de `backups/` pela aba
+**Files** do PythonAnywhere e guarde em outro lugar (seu computador, Google Drive
+etc.).
+
 ## Estrutura do projeto
 
 ```
@@ -95,4 +125,5 @@ core/       models, admin, views do sistema (congregações, membros, atas, even
 templates/  páginas HTML (site público + personalização do painel admin)
 static/     CSS do site público e do painel admin
 media/      arquivos enviados pelos administradores (fotos de eventos, PDFs de atas)
+backups/    backups automáticos dos dados (criado ao rodar manage.py backup_db)
 ```
