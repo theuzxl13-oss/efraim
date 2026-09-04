@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Aniversariantes — Varões Efraim{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Aniversariantes</h1>
+  <p>Confira quem faz aniversário este mês no Setor 46.</p>
+</section>
+
+<form class="filter-bar" method="get">
+  <select name="mes" onchange="this.form.submit()">
+    {% for numero, nome in meses %}
+      <option value="{{ numero }}" {% if mes_selecionado == numero %}selected{% endif %}>{{ nome }}</option>
+    {% endfor %}
+  </select>
+  <select name="congregacao" onchange="this.form.submit()">
+    <option value="">Todas as congregações</option>
+    {% for c in congregacoes %}
+      <option value="{{ c.id }}" {% if congregacao_selecionada == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit">Filtrar</button></noscript>
+</form>
+
+{% if aniversariantes %}
+  <div class="card-grid">
+    {% for membro in aniversariantes %}
+      <div class="card">
+        <div class="card-body">
+          <span class="card-tag">
+            {% if membro.dia == hoje.day and mes_selecionado == hoje.month %}🎉 Hoje!{% else %}{{ membro.birth_date|date:"d/m" }}{% endif %}
+          </span>
+          <h3>{{ membro.full_name }}</h3>
+          <span class="meta">{{ membro.congregation.name }} · {{ membro.get_cargo_display }}</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">Nenhum aniversariante nesse mês.</div>
+{% endif %}
+{% endblock %}

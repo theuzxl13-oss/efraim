@@ -1,7 +1,14 @@
+from django.db.models.functions import ExtractDay
 from django.shortcuts import render
 from django.utils import timezone
 
-from .models import Congregation, Event, Minute
+from .models import Congregation, Event, Member, Minute
+
+MESES = [
+    (1, "Janeiro"), (2, "Fevereiro"), (3, "Março"), (4, "Abril"),
+    (5, "Maio"), (6, "Junho"), (7, "Julho"), (8, "Agosto"),
+    (9, "Setembro"), (10, "Outubro"), (11, "Novembro"), (12, "Dezembro"),
+]
 
 
 def home(request):
@@ -49,6 +56,29 @@ def atas(request):
         "core/atas.html",
         {
             "atas": qs,
+            "congregacoes": Congregation.objects.all(),
+            "congregacao_selecionada": request.GET.get("congregacao", ""),
+        },
+    )
+
+
+def aniversariantes(request):
+    hoje = timezone.localdate()
+    mes_param = request.GET.get("mes")
+    mes = int(mes_param) if mes_param and mes_param.isdigit() and 1 <= int(mes_param) <= 12 else hoje.month
+
+    qs = Member.objects.filter(birth_date__month=mes).select_related("congregation")
+    qs = _congregation_filter(request, qs)
+    qs = qs.annotate(dia=ExtractDay("birth_date")).order_by("dia", "full_name")
+
+    return render(
+        request,
+        "core/aniversariantes.html",
+        {
+            "aniversariantes": qs,
+            "meses": MESES,
+            "mes_selecionado": mes,
+            "hoje": hoje,
             "congregacoes": Congregation.objects.all(),
             "congregacao_selecionada": request.GET.get("congregacao", ""),
         },
