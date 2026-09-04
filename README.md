@@ -3,8 +3,11 @@
 Sistema de cadastro de membros, atas de reuniões e eventos para os Varões Efraim
 (Assembleia de Deus Ministério do Belém — Setor 46). Feito em **Python + Django**.
 
-- **Site público** (`/`, `/eventos/`, `/atas/`): qualquer pessoa pode ver os eventos e
-  atas publicados, sem precisar de login.
+Site no ar: **https://varoesefraim.pythonanywhere.com**
+
+- **Site público** (`/`, `/eventos/`, `/atas/`, `/aniversariantes/`): qualquer pessoa
+  pode ver os eventos publicados, as atas de reuniões e os aniversariantes do mês,
+  sem precisar de login.
 - **Painel administrativo** (`/admin/`): acesso restrito por login e senha.
   - **Admin geral**: vê e gerencia todas as congregações e membros, cria os logins
     dos administradores de cada congregação, e é o único que gerencia atas de
@@ -12,9 +15,31 @@ Sistema de cadastro de membros, atas de reuniões e eventos para os Varões Efra
   - **Admin de congregação**: só cadastra, edita e exclui membros da própria
     congregação — não tem acesso a atas, eventos, outras congregações ou usuários.
 
+## Cadastro de membros
+
+Cada membro tem: nome completo, data de nascimento e cargo (Membro, Cooperador,
+Diácono, Presbítero, Evangelista ou Pastor). Um administrador de congregação só
+cadastra membros na sua própria congregação; o administrador geral pode cadastrar
+em qualquer uma.
+
+## Atas e eventos
+
+Em **Atas de reuniões** e **Eventos**, cada registro pode ser vinculado a uma
+congregação específica ou deixado em branco (aparece como "Setor 46", geral para
+todos). Marque **"Publicada"/"Publicado"** para que apareça no site público — se
+desmarcar, fica visível só no painel administrativo. Só o administrador geral tem
+acesso a essas duas seções.
+
+## Aniversariantes
+
+A página pública `/aniversariantes/` mostra os membros que fazem aniversário no
+mês selecionado (com destaque para quem faz aniversário hoje), com filtro por mês
+e por congregação. Por privacidade, mostra só o dia e o mês — nunca o ano de
+nascimento.
+
 ## Como rodar no seu computador
 
-Pré-requisito: Python 3.12+ instalado (já está, se você seguiu os passos até aqui).
+Pré-requisito: Python 3.12+ instalado.
 
 ```bash
 python -m venv venv
@@ -32,52 +57,35 @@ esse será o seu login de **administrador geral** (acesso a tudo). Depois é só
 
 Logado como administrador geral:
 
-1. No painel, vá em **Congregações → Adicionar** e cadastre cada congregação
-   (ex: Sede, Congregação X, Congregação Y...).
+1. No painel, vá em **Congregações → Adicionar** e cadastre cada congregação.
 2. Vá em **Usuários → Adicionar** e crie um usuário para cada administrador de
-   congregação (ex: Isaac, Yuri). Marque a opção **"Membro da equipe" (is_staff)**.
+   congregação. Marque a opção **"Membro da equipe" (is_staff)**.
 3. Ainda na tela do usuário, role até **"Escopo de acesso"** e selecione a
    congregação daquele administrador. Isso faz com que ele só veja e edite os
-   dados da própria congregação.
+   membros da própria congregação.
 4. Adicione esse usuário ao grupo **"Admin de Congregação"** (na seção de grupos,
    dentro da mesma tela) — é esse grupo que dá permissão de cadastrar, editar e
-   excluir membros. Ele não dá acesso a atas nem eventos — isso fica só com o
-   administrador geral.
-5. Para um administrador com acesso geral (como você e o Kauan), marque
-   **"Membro da equipe"** e **"Superusuário"**, e deixe o campo de congregação em
-   branco.
+   excluir membros. Ele não dá acesso a atas nem eventos.
+5. Para um administrador com acesso geral, marque **"Membro da equipe"** e
+   **"Superusuário"**, e deixe o campo de congregação em branco.
 
-## Cadastro de membros
+## Atualizando o site publicado (PythonAnywhere)
 
-Cada membro tem: nome completo, data de nascimento e cargo (Membro, Cooperador,
-Diácono, Presbítero, Evangelista ou Pastor). Um administrador de congregação só
-cadastra membros na sua própria congregação; o administrador geral pode cadastrar
-em qualquer uma.
+O site já está publicado em `varoesefraim.pythonanywhere.com`. Sempre que o
+código deste repositório for atualizado, para refletir a mudança no site:
 
-## Atas e eventos
+```bash
+cd ~/efraim
+git pull
+venv/bin/python manage.py migrate
+venv/bin/python manage.py collectstatic --noinput
+```
 
-Em **Atas de reuniões** e **Eventos**, cada registro pode ser vinculado a uma
-congregação específica ou deixado em branco (aparece como "Setor 46", geral para
-todos). Marque **"Publicada"/"Publicado"** para que apareça no site público — se
-desmarcar, fica visível só no painel administrativo.
+E depois, na aba **Web** do painel do PythonAnywhere, clicar em **"Reload"**.
 
-## Colocando o site no ar (produção)
-
-Este projeto está pronto para ser publicado em qualquer serviço de hospedagem
-Python (ex: Railway, Render, PythonAnywhere). Passos gerais:
-
-1. Crie uma conta no serviço escolhido (isso você faz diretamente, por segurança
-   eu não crio contas em nome de terceiros).
-2. Configure as variáveis de ambiente do `.env.example` (gere uma
-   `DJANGO_SECRET_KEY` nova e forte, coloque `DJANGO_DEBUG=False` e o domínio do
-   site em `DJANGO_ALLOWED_HOSTS`).
-3. Rode `python manage.py migrate` e `python manage.py collectstatic` no
-   servidor.
-4. Suba a aplicação com `gunicorn config.wsgi` (já incluso no
-   `requirements.txt`).
-5. Fotos de eventos e PDFs de atas ficam salvos na pasta `media/` — verifique se
-   o serviço escolhido mantém essa pasta entre deploys (alguns exigem um "disco
-   persistente" ou um serviço de armazenamento externo).
+Contas gratuitas do PythonAnywhere precisam ser "renovadas" uma vez por mês (basta
+entrar no painel e clicar em "Run until 1 month from today" na aba Web), senão o
+site é pausado automaticamente.
 
 ## Estrutura do projeto
 
@@ -85,6 +93,6 @@ Python (ex: Railway, Render, PythonAnywhere). Passos gerais:
 config/     configurações do Django (settings, urls)
 core/       models, admin, views do sistema (congregações, membros, atas, eventos)
 templates/  páginas HTML (site público + personalização do painel admin)
-static/     CSS do site público
-media/      arquivos enviados pelos administradores (criado ao rodar)
+static/     CSS do site público e do painel admin
+media/      arquivos enviados pelos administradores (fotos de eventos, PDFs de atas)
 ```
