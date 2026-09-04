@@ -92,10 +92,18 @@ class CongregationScopedAdmin(admin.ModelAdmin):
 
 class GeralOnlyAdmin(admin.ModelAdmin):
     """Base para modelos visíveis/editáveis só por administradores gerais
-    (Congregações e Usuários) — administradores de congregação não acessam."""
+    (Congregações, Usuários, Atas e Eventos) — administradores de congregação
+    não acessam nada aqui."""
+
+    exclude = ("created_by",)
 
     def _allowed(self, request):
         return bool(request.user.is_active and request.user.is_staff and is_geral(request))
+
+    def save_model(self, request, obj, form, change):
+        if hasattr(obj, "created_by_id") and not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
     def has_module_permission(self, request):
         return self._allowed(request)
