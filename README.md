@@ -81,6 +81,13 @@ excluir mais. O painel de controle mostra, para o mês atual, quais congregaçõ
 já estão em dia (✅) e quais ainda não confirmaram (⏳). Essa seção é só do
 painel administrativo — nunca aparece no site público.
 
+Tem também uma tela de **histórico completo** ("Ver histórico completo" no
+painel, ou `/admin/mensalidades/situacao/`): uma tabela com as congregações nas
+linhas e os meses nas colunas, mostrando quem está em dia, quem está atrasado em
+algum mês anterior (⚠️) e quem adiantou mensalidades futuras (✅ aparecendo além
+do mês atual). O administrador de congregação só vê a linha da própria
+congregação; o administrador geral vê todas.
+
 ## Atualizando o site publicado (PythonAnywhere)
 
 O site já está publicado em `varoesefraim.pythonanywhere.com`. Sempre que o

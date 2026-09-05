@@ -63,3 +63,80 @@
   color: #b06d00;
   border: 1px solid rgba(214, 137, 16, 0.4);
 }
+
+.efraim-mensalidade-pill.enviado {
+  background: rgba(2, 119, 189, 0.15);
+  color: #0277bd;
+  border: 1px solid rgba(2, 119, 189, 0.4);
+}
+
+.efraim-mensalidade-pill.atrasado {
+  background: rgba(198, 40, 40, 0.15);
+  color: #c62828;
+  border: 1px solid rgba(198, 40, 40, 0.4);
+}
+
+.efraim-mensalidade-pill.futuro {
+  background: rgba(154, 165, 182, 0.15);
+  color: #5b6678;
+  border: 1px solid rgba(154, 165, 182, 0.4);
+}
+
+/* ---- Tabela de situacao das mensalidades ---- */
+.efraim-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+
+.efraim-tabela-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.efraim-mensalidade-table {
+  border-collapse: collapse;
+  min-width: 100%;
+  white-space: nowrap;
+}
+
+.efraim-mensalidade-table th,
+.efraim-mensalidade-table td {
+  padding: 10px 14px;
+  text-align: center;
+  border: 1px solid rgba(154, 165, 182, 0.3);
+}
+
+.efraim-mensalidade-table th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.efraim-mensalidade-table td.nome-congregacao {
+  text-align: left;
+  font-weight: 600;
+  white-space: normal;
+}
+
+.efraim-mensalidade-table td a {
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.efraim-mensalidade-table td.status-atrasado {
+  background: rgba(198, 40, 40, 0.12);
+}
+
+.efraim-mensalidade-table td.status-pago {
+  background: rgba(46, 125, 50, 0.1);
+}
+
+.efraim-mensalidade-table td.status-enviado {
+  background: rgba(2, 119, 189, 0.1);
+}
+
+.efraim-mensalidade-table td.status-pendente {
+  background: rgba(214, 137, 16, 0.1);
+}

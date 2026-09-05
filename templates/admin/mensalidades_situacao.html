@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'core/css/admin-dashboard.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Início</a>
+  &rsaquo; Situação das mensalidades
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Situação das mensalidades{% if not is_geral_admin %} — sua congregação{% endif %}</h1>
+
+<div class="efraim-legenda">
+  <span class="efraim-mensalidade-pill pago">✅ Pago</span>
+  <span class="efraim-mensalidade-pill enviado">📤 Enviado (aguardando confirmação)</span>
+  <span class="efraim-mensalidade-pill atrasado">⚠️ Atrasado</span>
+  <span class="efraim-mensalidade-pill pendente">⏳ Pendente (mês atual)</span>
+  <span class="efraim-mensalidade-pill futuro">— Ainda não chegou o mês</span>
+</div>
+
+<div class="efraim-tabela-scroll">
+  <table class="efraim-mensalidade-table">
+    <thead>
+      <tr>
+        <th>Congregação</th>
+        {% for mes in meses %}
+          <th>{{ mes|date:"M/Y" }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for linha in linhas %}
+        <tr>
+          <td class="nome-congregacao">{{ linha.congregation.name }}</td>
+          {% for celula in linha.celulas %}
+            <td class="status-{{ celula.status }}">
+              {% if celula.registro %}
+                <a href="{% url 'admin:core_mensalidade_change' celula.registro.id %}" title="Ver mensalidade">
+                  {% if celula.status == "pago" %}✅{% else %}📤{% endif %}
+                </a>
+              {% elif celula.status == "atrasado" %}⚠️
+              {% elif celula.status == "pendente" %}⏳
+              {% else %}—{% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -2,9 +2,19 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.template.response import TemplateResponse
+from django.urls import path
 from django.utils import timezone
 
 from .models import AdminProfile, Congregation, Event, Member, Mensalidade, Minute
+
+
+def add_months(data, n):
+    """Soma (ou subtrai) n meses a uma data, sempre voltando ao dia 1."""
+    mes_zero_indexado = data.month - 1 + n
+    ano = data.year + mes_zero_indexado // 12
+    mes = mes_zero_indexado % 12 + 1
+    return data.replace(year=ano, month=mes, day=1)
 
 
 def get_profile(request):
@@ -61,6 +71,68 @@ class EfraimAdminSite(admin.AdminSite):
                 extra_context["mensalidade_paga_este_mes"] = my_congregation_id(request) in pagas_ids
             extra_context["mensalidade_mes_atual"] = mes_atual
         return super().index(request, extra_context)
+
+    def get_urls(self):
+        urls = [
+            path(
+                "mensalidades/situacao/",
+                self.admin_view(self.mensalidades_situacao_view),
+                name="mensalidades_situacao",
+            ),
+        ]
+        return urls + super().get_urls()
+
+    def mensalidades_situacao_view(self, request):
+        geral = is_geral(request)
+        if geral:
+            congregacoes = list(Congregation.objects.order_by("name"))
+        else:
+            congregacoes = list(Congregation.objects.filter(pk=my_congregation_id(request)))
+
+        hoje = timezone.localdate().replace(day=1)
+        inicio = add_months(hoje, -6)
+        fim = hoje
+
+        qs_congregacoes = Mensalidade.objects.filter(congregation__in=congregacoes)
+        mais_antiga = qs_congregacoes.order_by("mes_referencia").values_list("mes_referencia", flat=True).first()
+        mais_recente = qs_congregacoes.order_by("-mes_referencia").values_list("mes_referencia", flat=True).first()
+        if mais_antiga and mais_antiga < inicio:
+            inicio = mais_antiga.replace(day=1)
+        if mais_recente and mais_recente > fim:
+            fim = mais_recente.replace(day=1)
+
+        meses = []
+        m = inicio
+        while m <= fim:
+            meses.append(m)
+            m = add_months(m, 1)
+
+        registros = {(r.congregation_id, r.mes_referencia): r for r in qs_congregacoes}
+
+        linhas = []
+        for c in congregacoes:
+            celulas = []
+            for m in meses:
+                registro = registros.get((c.id, m))
+                if registro:
+                    status = "pago" if registro.confirmado else "enviado"
+                elif m < hoje:
+                    status = "atrasado"
+                elif m == hoje:
+                    status = "pendente"
+                else:
+                    status = "futuro"
+                celulas.append({"mes": m, "status": status, "registro": registro})
+            linhas.append({"congregation": c, "celulas": celulas})
+
+        context = {
+            **self.each_context(request),
+            "title": "Situação das mensalidades",
+            "meses": meses,
+            "linhas": linhas,
+            "is_geral_admin": geral,
+        }
+        return TemplateResponse(request, "admin/mensalidades_situacao.html", context)
 
 
 site = EfraimAdminSite(name="efraim_admin")
