@@ -162,6 +162,13 @@ class Mensalidade(models.Model):
     )
     observacoes = models.TextField("Observações", blank=True)
 
+    marcado_atrasado = models.BooleanField(
+        "Marcar como atrasado",
+        default=False,
+        help_text="Só o administrador geral vê este campo — força este mês a aparecer como atrasado "
+        "mesmo antes de o mês terminar (ex: a congregação já passou do prazo interno combinado).",
+    )
+
     confirmado = models.BooleanField("Confirmado pelo administrador geral", default=False)
     confirmado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,

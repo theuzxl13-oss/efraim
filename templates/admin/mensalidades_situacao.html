@@ -46,16 +46,14 @@
           <td class="nome-congregacao">{{ linha.congregation.name }}</td>
           {% for celula in linha.celulas %}
             <td class="status-{{ celula.status }}">
-              {% if celula.registro %}
-                <a href="{% url 'admin:core_mensalidade_change' celula.registro.id %}" title="Editar mensalidade">
-                  {% if celula.status == "pago" %}✅{% else %}🔵{% endif %}
-                </a>
-              {% else %}
-                <a href="{% url 'admin:core_mensalidade_add' %}?congregation={{ linha.congregation.id }}&mes_referencia={{ celula.mes|date:'Y-m-d' }}"
-                   title="Cadastrar mensalidade deste mês">
-                  {% if celula.status == "atrasado" %}⚠️{% elif celula.status == "pendente" %}⏳{% else %}—{% endif %}
-                </a>
-              {% endif %}
+              <a href="{% if celula.registro %}{% url 'admin:core_mensalidade_change' celula.registro.id %}{% else %}{% url 'admin:core_mensalidade_add' %}?congregation={{ linha.congregation.id }}&mes_referencia={{ celula.mes|date:'Y-m-d' }}{% endif %}"
+                 title="{% if celula.registro %}Editar mensalidade{% else %}Cadastrar mensalidade deste mês{% endif %}">
+                {% if celula.status == "pago" %}✅
+                {% elif celula.status == "enviado" %}🔵
+                {% elif celula.status == "atrasado" %}⚠️
+                {% elif celula.status == "pendente" %}⏳
+                {% else %}—{% endif %}
+              </a>
             </td>
           {% endfor %}
         </tr>

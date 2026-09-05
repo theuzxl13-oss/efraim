@@ -128,7 +128,12 @@ class EfraimAdminSite(admin.AdminSite):
             celulas = []
             for m in meses:
                 registro = registros.get((c.id, m))
-                if registro:
+                if registro and registro.marcado_atrasado and not registro.confirmado and not registro.comprovante:
+                    # Admin geral forcou este mes a aparecer como atrasado
+                    # (mesmo antes de o mes terminar). Deixa de valer assim
+                    # que a congregacao enviar um comprovante de verdade.
+                    status = "atrasado"
+                elif registro:
                     # Havendo registro, o status real dele sempre prevalece
                     # — mesmo que caia antes da data de criação "oficial" da
                     # congregação no sistema.
@@ -271,7 +276,7 @@ class MensalidadeAdmin(CongregationScopedAdmin):
     def get_exclude(self, request, obj=None):
         campos = list(super().get_exclude(request, obj) or [])
         if not is_geral(request):
-            campos += ["confirmado", "confirmado_por", "confirmado_em"]
+            campos += ["confirmado", "confirmado_por", "confirmado_em", "marcado_atrasado"]
         return campos
 
     def get_form(self, request, obj=None, **kwargs):
