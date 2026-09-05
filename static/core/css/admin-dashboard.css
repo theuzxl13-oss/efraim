@@ -83,6 +83,18 @@
 }
 
 /* ---- Tabela de situacao das mensalidades ---- */
+.efraim-ano-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 8px 0 16px;
+  font-size: 1.05rem;
+}
+
+.efraim-ano-nav strong {
+  font-size: 1.15rem;
+}
+
 .efraim-legenda {
   display: flex;
   flex-wrap: wrap;

@@ -90,16 +90,29 @@ class EfraimAdminSite(admin.AdminSite):
             congregacoes = list(Congregation.objects.filter(pk=my_congregation_id(request)))
 
         hoje = timezone.localdate().replace(day=1)
-        inicio = add_months(hoje, -6)
-        fim = hoje
+        ano_param = request.GET.get("ano")
+        ano_selecionado = int(ano_param) if ano_param and ano_param.isdigit() else hoje.year
+
+        inicio = hoje.replace(year=ano_selecionado, month=1, day=1)
+        fim = hoje.replace(year=ano_selecionado, month=12, day=1)
 
         qs_congregacoes = Mensalidade.objects.filter(congregation__in=congregacoes)
-        mais_antiga = qs_congregacoes.order_by("mes_referencia").values_list("mes_referencia", flat=True).first()
-        mais_recente = qs_congregacoes.order_by("-mes_referencia").values_list("mes_referencia", flat=True).first()
-        if mais_antiga and mais_antiga < inicio:
-            inicio = mais_antiga.replace(day=1)
-        if mais_recente and mais_recente > fim:
-            fim = mais_recente.replace(day=1)
+
+        # No ano atual (visão padrão), estica a tabela automaticamente se
+        # houver algum atraso mais antigo ou adiantamento mais à frente do
+        # que o próprio ano — assim nada fica escondido sem querer. Ao
+        # navegar para outro ano especificamente, mostra só aquele ano.
+        if ano_selecionado == hoje.year:
+            mais_antiga = (
+                qs_congregacoes.order_by("mes_referencia").values_list("mes_referencia", flat=True).first()
+            )
+            mais_recente = (
+                qs_congregacoes.order_by("-mes_referencia").values_list("mes_referencia", flat=True).first()
+            )
+            if mais_antiga and mais_antiga < inicio:
+                inicio = mais_antiga.replace(day=1)
+            if mais_recente and mais_recente > fim:
+                fim = mais_recente.replace(day=1)
 
         meses = []
         m = inicio
@@ -128,6 +141,9 @@ class EfraimAdminSite(admin.AdminSite):
         context = {
             **self.each_context(request),
             "title": "Situação das mensalidades",
+            "ano_selecionado": ano_selecionado,
+            "ano_anterior": ano_selecionado - 1,
+            "ano_seguinte": ano_selecionado + 1,
             "meses": meses,
             "linhas": linhas,
             "is_geral_admin": geral,

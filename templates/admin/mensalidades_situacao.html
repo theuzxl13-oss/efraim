@@ -16,6 +16,12 @@
 {% block content %}
 <h1>Situação das mensalidades{% if not is_geral_admin %} — sua congregação{% endif %}</h1>
 
+<div class="efraim-ano-nav">
+  <a href="?ano={{ ano_anterior }}">&laquo; {{ ano_anterior }}</a>
+  <strong>{{ ano_selecionado }}</strong>
+  <a href="?ano={{ ano_seguinte }}">{{ ano_seguinte }} &raquo;</a>
+</div>
+
 <div class="efraim-legenda">
   <span class="efraim-mensalidade-pill pago">✅ Pago</span>
   <span class="efraim-mensalidade-pill enviado">📤 Enviado (aguardando confirmação)</span>

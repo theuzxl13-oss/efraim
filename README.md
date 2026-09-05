@@ -83,10 +83,12 @@ painel administrativo — nunca aparece no site público.
 
 Tem também uma tela de **histórico completo** ("Ver histórico completo" no
 painel, ou `/admin/mensalidades/situacao/`): uma tabela com as congregações nas
-linhas e os meses nas colunas, mostrando quem está em dia, quem está atrasado em
-algum mês anterior (⚠️) e quem adiantou mensalidades futuras (✅ aparecendo além
-do mês atual). O administrador de congregação só vê a linha da própria
-congregação; o administrador geral vê todas.
+linhas e os meses do ano (Janeiro a Dezembro) nas colunas — no mesmo estilo da
+planilha que o grupo usava antes, mas automática. Mostra quem está em dia, quem
+está atrasado em algum mês anterior (⚠️) e quem adiantou mensalidades futuras
+(✅ aparecendo além do mês atual). Dá para navegar entre anos («/»). O
+administrador de congregação só vê a linha da própria congregação; o
+administrador geral vê todas.
 
 ## Atualizando o site publicado (PythonAnywhere)
 
