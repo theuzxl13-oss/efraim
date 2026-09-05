@@ -49,37 +49,28 @@
   padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .efraim-mensalidade-pill.pago {
-  background: rgba(46, 125, 50, 0.15);
-  color: #2e7d32;
-  border: 1px solid rgba(46, 125, 50, 0.4);
+  background: #2e7d32;
 }
 
 .efraim-mensalidade-pill.pendente {
-  background: rgba(214, 137, 16, 0.15);
-  color: #b06d00;
-  border: 1px solid rgba(214, 137, 16, 0.4);
+  background: #e08600;
 }
 
 .efraim-mensalidade-pill.enviado {
-  background: rgba(2, 119, 189, 0.15);
-  color: #0277bd;
-  border: 1px solid rgba(2, 119, 189, 0.4);
+  background: #1565c0;
 }
 
 .efraim-mensalidade-pill.atrasado {
-  background: rgba(198, 40, 40, 0.15);
-  color: #c62828;
-  border: 1px solid rgba(198, 40, 40, 0.4);
+  background: #c62828;
 }
 
 .efraim-mensalidade-pill.futuro {
-  background: rgba(154, 165, 182, 0.15);
-  color: #5b6678;
-  border: 1px solid rgba(154, 165, 182, 0.4);
+  background: #55606e;
 }
 
 /* ---- Tabela de situacao das mensalidades ---- */
@@ -135,20 +126,26 @@
 .efraim-mensalidade-table td a {
   text-decoration: none;
   font-size: 1.1rem;
-}
-
-.efraim-mensalidade-table td.status-atrasado {
-  background: rgba(198, 40, 40, 0.12);
+  display: block;
 }
 
 .efraim-mensalidade-table td.status-pago {
-  background: rgba(46, 125, 50, 0.1);
+  background: #2e7d32;
 }
 
 .efraim-mensalidade-table td.status-enviado {
-  background: rgba(2, 119, 189, 0.1);
+  background: #1565c0;
+}
+
+.efraim-mensalidade-table td.status-atrasado {
+  background: #c62828;
 }
 
 .efraim-mensalidade-table td.status-pendente {
-  background: rgba(214, 137, 16, 0.1);
+  background: #e08600;
+}
+
+.efraim-mensalidade-table td.status-futuro {
+  background: #37474f;
+  color: #b0bec5;
 }

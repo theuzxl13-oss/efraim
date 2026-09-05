@@ -128,13 +128,16 @@ class EfraimAdminSite(admin.AdminSite):
             celulas = []
             for m in meses:
                 registro = registros.get((c.id, m))
-                if m < mes_criacao:
-                    # Congregação ainda não existia nesse mês — não faz
-                    # sentido cobrar mensalidade de um mês antes dela ser
-                    # cadastrada no sistema.
-                    status = "futuro"
-                elif registro:
+                if registro:
+                    # Havendo registro, o status real dele sempre prevalece
+                    # — mesmo que caia antes da data de criação "oficial" da
+                    # congregação no sistema.
                     status = "pago" if registro.confirmado else "enviado"
+                elif m < mes_criacao:
+                    # Sem registro e a congregação ainda não existia nesse
+                    # mês — não faz sentido cobrar mensalidade de um mês
+                    # antes dela ser cadastrada no sistema.
+                    status = "futuro"
                 elif m < hoje:
                     status = "atrasado"
                 elif m == hoje:

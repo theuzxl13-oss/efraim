@@ -24,7 +24,7 @@
 
 <div class="efraim-legenda">
   <span class="efraim-mensalidade-pill pago">✅ Pago</span>
-  <span class="efraim-mensalidade-pill enviado">📤 Enviado (aguardando confirmação)</span>
+  <span class="efraim-mensalidade-pill enviado">🔵 Enviado (aguardando confirmação)</span>
   <span class="efraim-mensalidade-pill atrasado">⚠️ Atrasado</span>
   <span class="efraim-mensalidade-pill pendente">⏳ Pendente (mês atual)</span>
   <span class="efraim-mensalidade-pill futuro">— Ainda não chegou o mês</span>
@@ -47,15 +47,15 @@
           {% for celula in linha.celulas %}
             <td class="status-{{ celula.status }}">
               {% if celula.registro %}
-                <a href="{% url 'admin:core_mensalidade_change' celula.registro.id %}" title="Ver mensalidade">
-                  {% if celula.status == "pago" %}✅{% else %}📤{% endif %}
+                <a href="{% url 'admin:core_mensalidade_change' celula.registro.id %}" title="Editar mensalidade">
+                  {% if celula.status == "pago" %}✅{% else %}🔵{% endif %}
                 </a>
-              {% elif celula.status == "atrasado" or celula.status == "pendente" %}
+              {% else %}
                 <a href="{% url 'admin:core_mensalidade_add' %}?congregation={{ linha.congregation.id }}&mes_referencia={{ celula.mes|date:'Y-m-d' }}"
                    title="Cadastrar mensalidade deste mês">
-                  {% if celula.status == "atrasado" %}⚠️{% else %}⏳{% endif %}
+                  {% if celula.status == "atrasado" %}⚠️{% elif celula.status == "pendente" %}⏳{% else %}—{% endif %}
                 </a>
-              {% else %}—{% endif %}
+              {% endif %}
             </td>
           {% endfor %}
         </tr>
