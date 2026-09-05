@@ -124,10 +124,16 @@ class EfraimAdminSite(admin.AdminSite):
 
         linhas = []
         for c in congregacoes:
+            mes_criacao = timezone.localtime(c.created_at).date().replace(day=1)
             celulas = []
             for m in meses:
                 registro = registros.get((c.id, m))
-                if registro:
+                if m < mes_criacao:
+                    # Congregação ainda não existia nesse mês — não faz
+                    # sentido cobrar mensalidade de um mês antes dela ser
+                    # cadastrada no sistema.
+                    status = "futuro"
+                elif registro:
                     status = "pago" if registro.confirmado else "enviado"
                 elif m < hoje:
                     status = "atrasado"
