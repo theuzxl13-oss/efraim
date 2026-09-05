@@ -141,3 +141,60 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Mensalidade(models.Model):
+    congregation = models.ForeignKey(
+        Congregation, on_delete=models.PROTECT, related_name="mensalidades", verbose_name="Congregação"
+    )
+    mes_referencia = models.DateField(
+        "Mês de referência",
+        help_text="Escolha qualquer dia do mês a que a mensalidade se refere (ex: 01/09/2026 para setembro/2026).",
+    )
+    valor = models.DecimalField("Valor pago", max_digits=8, decimal_places=2, null=True, blank=True)
+    data_pagamento = models.DateField("Data do Pix", null=True, blank=True)
+    comprovante = models.FileField(
+        "Comprovante",
+        upload_to="comprovantes/%Y/%m/",
+        validators=[FileExtensionValidator(["pdf", "jpg", "jpeg", "png"])],
+        help_text="PDF ou foto (JPG/PNG) do comprovante do Pix.",
+    )
+    observacoes = models.TextField("Observações", blank=True)
+
+    confirmado = models.BooleanField("Confirmado pelo administrador geral", default=False)
+    confirmado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="Confirmado por",
+    )
+    confirmado_em = models.DateTimeField("Confirmado em", null=True, blank=True)
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    created_at = models.DateTimeField("Enviado em", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Mensalidade"
+        verbose_name_plural = "Mensalidades"
+        ordering = ["-mes_referencia", "congregation__name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["congregation", "mes_referencia"], name="unica_mensalidade_por_congregacao_mes"
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        # Normaliza sempre para o dia 1, senão a mesma congregação poderia
+        # enviar duas mensalidades para o mesmo mês só escolhendo dias
+        # diferentes no calendário (a restrição unique_together comparia
+        # datas exatas, não "mês e ano").
+        if self.mes_referencia:
+            self.mes_referencia = self.mes_referencia.replace(day=1)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.congregation.name} — {self.mes_referencia:%m/%Y}"

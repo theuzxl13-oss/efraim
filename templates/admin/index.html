@@ -21,6 +21,30 @@
     </div>
   </div>
 {% endif %}
+
+{% if mensalidade_status is not None or mensalidade_paga_este_mes is not None %}
+  <div class="efraim-dashboard">
+    <h2>Mensalidade de {{ mensalidade_mes_atual|date:"F/Y" }}</h2>
+    {% if mensalidade_status is not None %}
+      <div class="efraim-mensalidade-grid">
+        {% for item in mensalidade_status %}
+          <span class="efraim-mensalidade-pill {% if item.pago %}pago{% else %}pendente{% endif %}">
+            {% if item.pago %}✅{% else %}⏳{% endif %} {{ item.nome }}
+          </span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>
+        {% if mensalidade_paga_este_mes %}
+          <span class="efraim-mensalidade-pill pago">✅ Mensalidade confirmada este mês</span>
+        {% else %}
+          <span class="efraim-mensalidade-pill pendente">⏳ Ainda não confirmada este mês</span>
+        {% endif %}
+      </p>
+    {% endif %}
+  </div>
+{% endif %}
+
 {{ block.super }}
 {% endblock %}
 

@@ -2,8 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.utils import timezone
 
-from .models import AdminProfile, Congregation, Event, Member, Minute
+from .models import AdminProfile, Congregation, Event, Member, Mensalidade, Minute
 
 
 def get_profile(request):
@@ -34,7 +35,8 @@ class EfraimAdminSite(admin.AdminSite):
     def index(self, request, extra_context=None):
         extra_context = extra_context or {}
         if request.user.is_authenticated:
-            if is_geral(request):
+            geral = is_geral(request)
+            if geral:
                 stats = Congregation.objects.annotate(total_membros=Count("members")).order_by("name")
                 total_geral = Member.objects.count()
             else:
@@ -43,7 +45,21 @@ class EfraimAdminSite(admin.AdminSite):
                 total_geral = None
             extra_context["congregation_stats"] = stats
             extra_context["total_geral"] = total_geral
-            extra_context["is_geral_admin"] = is_geral(request)
+            extra_context["is_geral_admin"] = geral
+
+            mes_atual = timezone.localdate().replace(day=1)
+            pagas_ids = set(
+                Mensalidade.objects.filter(mes_referencia=mes_atual, confirmado=True).values_list(
+                    "congregation_id", flat=True
+                )
+            )
+            if geral:
+                extra_context["mensalidade_status"] = [
+                    {"nome": c.name, "pago": c.id in pagas_ids} for c in stats
+                ]
+            else:
+                extra_context["mensalidade_paga_este_mes"] = my_congregation_id(request) in pagas_ids
+            extra_context["mensalidade_mes_atual"] = mes_atual
         return super().index(request, extra_context)
 
 
@@ -145,6 +161,41 @@ class MinuteAdmin(GeralOnlyAdmin):
     list_filter = ("congregation", "published")
     search_fields = ("title", "notes")
     date_hierarchy = "meeting_date"
+
+
+@admin.register(Mensalidade, site=site)
+class MensalidadeAdmin(CongregationScopedAdmin):
+    list_display = ("congregation", "mes_referencia", "valor", "data_pagamento", "confirmado")
+    list_filter = ("congregation", "confirmado")
+    search_fields = ("congregation__name",)
+    date_hierarchy = "mes_referencia"
+    actions = ["marcar_confirmado"]
+
+    def get_exclude(self, request, obj=None):
+        campos = list(super().get_exclude(request, obj) or [])
+        if not is_geral(request):
+            campos += ["confirmado", "confirmado_por", "confirmado_em"]
+        return campos
+
+    def has_change_permission(self, request, obj=None):
+        if obj is not None and not is_geral(request) and obj.confirmado:
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None and not is_geral(request) and obj.confirmado:
+            return False
+        return super().has_delete_permission(request, obj)
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not is_geral(request):
+            actions.pop("marcar_confirmado", None)
+        return actions
+
+    @admin.action(description="Marcar selecionadas como confirmadas (pagas)")
+    def marcar_confirmado(self, request, queryset):
+        queryset.update(confirmado=True, confirmado_por=request.user, confirmado_em=timezone.now())
 
 
 @admin.register(Event, site=site)

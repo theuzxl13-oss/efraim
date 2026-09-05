@@ -36,3 +36,30 @@
   font-size: 0.85rem;
   color: #9aa5b6;
 }
+
+.efraim-mensalidade-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.efraim-mensalidade-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.efraim-mensalidade-pill.pago {
+  background: rgba(46, 125, 50, 0.15);
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.4);
+}
+
+.efraim-mensalidade-pill.pendente {
+  background: rgba(214, 137, 16, 0.15);
+  color: #b06d00;
+  border: 1px solid rgba(214, 137, 16, 0.4);
+}

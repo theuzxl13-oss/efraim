@@ -69,6 +69,18 @@ Logado como administrador geral:
 5. Para um administrador com acesso geral, marque **"Membro da equipe"** e
    **"Superusuário"**, e deixe o campo de congregação em branco.
 
+## Mensalidades
+
+Cada congregação paga uma mensalidade ao Setor 46. Em **Mensalidades**, um
+administrador de congregação envia o comprovante do Pix (PDF, JPG ou PNG) do mês,
+com valor e data — mas só o **administrador geral** pode marcar como confirmada
+(depois de conferir no extrato da conta do setorial), usando a ação "Marcar
+selecionadas como confirmadas" na lista. Depois de confirmada, o registro fica
+travado — o administrador de congregação só pode visualizar, não editar ou
+excluir mais. O painel de controle mostra, para o mês atual, quais congregações
+já estão em dia (✅) e quais ainda não confirmaram (⏳). Essa seção é só do
+painel administrativo — nunca aparece no site público.
+
 ## Atualizando o site publicado (PythonAnywhere)
 
 O site já está publicado em `varoesefraim.pythonanywhere.com`. Sempre que o
@@ -98,11 +110,10 @@ venv/bin/python manage.py backup_db
 ```
 
 Ele mantém automaticamente os **30 backups mais recentes** e apaga os mais antigos.
-No PythonAnywhere, configure isso para rodar sozinho todo dia:
 
-1. Vá na aba **Tasks** do painel do PythonAnywhere.
-2. Em "Create a scheduled task", escolha um horário (ex: 3:00) e cole o comando:
-   `/home/varoesefraim/efraim/venv/bin/python /home/varoesefraim/efraim/manage.py backup_db`
+Tarefas agendadas (rodar sozinho todo dia) só estão disponíveis nos planos pagos do
+PythonAnywhere — na conta gratuita, rode o comando manualmente de vez em quando
+(por exemplo, toda vez que você entrar para fazer a renovação mensal da conta).
 
 **Restaurar um backup** (em caso de necessidade):
 
