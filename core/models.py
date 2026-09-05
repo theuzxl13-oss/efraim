@@ -158,6 +158,7 @@ class Mensalidade(models.Model):
         upload_to="comprovantes/%Y/%m/",
         validators=[FileExtensionValidator(["pdf", "jpg", "jpeg", "png"])],
         help_text="PDF ou foto (JPG/PNG) do comprovante do Pix.",
+        blank=True,
     )
     observacoes = models.TextField("Observações", blank=True)
 

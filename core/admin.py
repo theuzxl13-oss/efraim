@@ -274,6 +274,14 @@ class MensalidadeAdmin(CongregationScopedAdmin):
             campos += ["confirmado", "confirmado_por", "confirmado_em"]
         return campos
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        # Admin de congregação precisa sempre anexar o comprovante; admin
+        # geral pode confirmar/cadastrar direto, sem exigir arquivo.
+        if "comprovante" in form.base_fields:
+            form.base_fields["comprovante"].required = not is_geral(request)
+        return form
+
     def has_change_permission(self, request, obj=None):
         if obj is not None and not is_geral(request) and obj.confirmado:
             return False
