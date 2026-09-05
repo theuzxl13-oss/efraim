@@ -54,23 +54,24 @@
 }
 
 .efraim-mensalidade-pill.pago {
-  background: #2e7d32;
+  background: #43a047;
 }
 
 .efraim-mensalidade-pill.pendente {
-  background: #e08600;
+  background: #fbc02d;
+  color: #1c2430;
 }
 
 .efraim-mensalidade-pill.enviado {
-  background: #1565c0;
+  background: #7b1fa2;
 }
 
 .efraim-mensalidade-pill.atrasado {
-  background: #c62828;
+  background: #d32f2f;
 }
 
 .efraim-mensalidade-pill.futuro {
-  background: #55606e;
+  background: #1565c0;
 }
 
 /* ---- Tabela de situacao das mensalidades ---- */
@@ -130,22 +131,23 @@
 }
 
 .efraim-mensalidade-table td.status-pago {
-  background: #2e7d32;
+  background: #43a047;
 }
 
 .efraim-mensalidade-table td.status-enviado {
-  background: #1565c0;
+  background: #7b1fa2;
 }
 
 .efraim-mensalidade-table td.status-atrasado {
-  background: #c62828;
+  background: #d32f2f;
 }
 
 .efraim-mensalidade-table td.status-pendente {
-  background: #e08600;
+  background: #fbc02d;
+  color: #1c2430;
 }
 
 .efraim-mensalidade-table td.status-futuro {
-  background: #37474f;
-  color: #b0bec5;
+  background: #1565c0;
+  color: #ffffff;
 }
