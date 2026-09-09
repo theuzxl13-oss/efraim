@@ -41,6 +41,20 @@ CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
 ]
 
+# Em produção (DEBUG=False), o PythonAnywhere fica atrás de um proxy que já
+# fala HTTPS com o navegador, mas encaminha para a aplicação por HTTP simples
+# por dentro — este cabeçalho avisa o Django que a conexão original era
+# segura, evitando um loop infinito de redirecionamento.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Válvula de segurança: se o redirecionamento HTTPS causar algum problema no
+# servidor (ex: loop de redirecionamento), dá para desligar rapidinho com a
+# variável de ambiente DJANGO_SECURE_SSL_REDIRECT=False, sem precisar de novo
+# deploy — só editar o .env e recarregar.
+SECURE_SSL_REDIRECT = os.environ.get("DJANGO_SECURE_SSL_REDIRECT", str(not DEBUG)) == "True"
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
 
 # Application definition
 
