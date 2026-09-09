@@ -1,0 +1,90 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'core/css/admin-dashboard.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Início</a>
+  &rsaquo; Finanças
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Finanças</h1>
+<p class="efraim-aviso-privado">🔒 Área restrita ao tesoureiro. Os comprovantes anexados aqui não ficam
+  acessíveis publicamente — só através desta tela, logado.</p>
+
+<div class="efraim-saldo-card {% if saldo_atual < 0 %}negativo{% endif %}">
+  <div class="rotulo">Saldo atual</div>
+  <div class="numero">R$ {{ saldo_atual|floatformat:2 }}</div>
+</div>
+
+<div class="efraim-financeiro-resumo">
+  <div class="item entrada">
+    <span class="rotulo">Total de entradas</span>
+    <span class="valor">+ R$ {{ total_entradas|floatformat:2 }}</span>
+  </div>
+  <div class="item saida">
+    <span class="rotulo">Total de saídas</span>
+    <span class="valor">- R$ {{ total_saidas|floatformat:2 }}</span>
+  </div>
+  <div class="item">
+    <span class="rotulo">Saldo inicial</span>
+    <span class="valor">R$ {{ saldo_inicial.valor|floatformat:2 }}</span>
+  </div>
+</div>
+
+<form method="post" class="efraim-saldo-inicial-form">
+  {% csrf_token %}
+  <label for="{{ form_saldo_inicial.valor.id_for_label }}">Ajustar saldo inicial:</label>
+  {{ form_saldo_inicial.valor }}
+  <button type="submit">Salvar</button>
+</form>
+
+<div class="efraim-financeiro-acoes">
+  <a class="efraim-btn entrada" href="{% url 'admin:core_movimentofinanceiro_add' %}?tipo=entrada">+ Nova entrada</a>
+  <a class="efraim-btn saida" href="{% url 'admin:core_movimentofinanceiro_add' %}?tipo=saida">+ Nova saída</a>
+</div>
+
+<h2>Extrato</h2>
+{% if movimentos %}
+  <div class="efraim-tabela-scroll">
+    <table class="efraim-extrato-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Descrição</th>
+          <th>Valor</th>
+          <th>Comprovante</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mov in movimentos %}
+          <tr class="linha-{{ mov.tipo }}">
+            <td>{{ mov.data|date:"d/m/Y" }}</td>
+            <td>{% if mov.tipo == "entrada" %}🟢 Entrada{% else %}🔴 Saída{% endif %}</td>
+            <td>{{ mov.descricao }}</td>
+            <td>{% if mov.tipo == "entrada" %}+{% else %}-{% endif %} R$ {{ mov.valor|floatformat:2 }}</td>
+            <td>
+              {% if mov.comprovante %}
+                <a href="{% url 'admin:financeiro_comprovante' mov.id %}" target="_blank" rel="noopener">Ver arquivo</a>
+              {% else %}
+                <span class="efraim-sem-comprovante">—</span>
+              {% endif %}
+            </td>
+            <td><a href="{% url 'admin:core_movimentofinanceiro_change' mov.id %}">Editar</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="empty-state">Nenhum lançamento registrado ainda.</div>
+{% endif %}
+{% endblock %}

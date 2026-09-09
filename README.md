@@ -90,6 +90,30 @@ está atrasado em algum mês anterior (⚠️) e quem adiantou mensalidades futu
 administrador de congregação só vê a linha da própria congregação; o
 administrador geral vê todas.
 
+## Finanças
+
+Área extra, separada até dos outros administradores gerais — só quem tiver o
+sinalizador **"É tesoureiro"** marcado no próprio perfil (em **Usuários →
+[seu usuário] → Escopo de acesso**) enxerga o link "🔒 Finanças" no painel e
+consegue acessar `/admin/financeiro/`. Um admin geral sem essa marcação não
+vê nada — nem o link, nem o módulo na lista lateral.
+
+Funciona como um extrato: você define um **saldo inicial**, e cada lançamento
+(entrada ou saída, com valor e descrição do porquê) soma ou subtrai desse
+saldo automaticamente — o "Saldo atual" no topo da página é sempre calculado
+na hora, nunca digitado à mão. Cada lançamento pode ter um comprovante
+anexado (nota fiscal, print do Pix).
+
+**Importante sobre segurança:** os comprovantes financeiros são guardados
+numa pasta separada (`media_privado/`) que o servidor **não** expõe
+publicamente como faz com fotos de eventos ou PDFs de atas — só é possível
+abrir um comprovante logado como tesoureiro, através do próprio painel. Isso
+é diferente de Atas/Eventos, cujos arquivos são intencionalmente públicos.
+
+Para criar o primeiro tesoureiro (inclusive você mesmo): vá em **Usuários**,
+edite o usuário, e marque **"É tesoureiro"** na seção "Escopo de acesso". Um
+superusuário não ganha isso automaticamente — precisa ser marcado explicitamente.
+
 ## Atualizando o site publicado (PythonAnywhere)
 
 O site já está publicado em `varoesefraim.pythonanywhere.com`. Sempre que o
@@ -144,6 +168,7 @@ config/     configurações do Django (settings, urls)
 core/       models, admin, views do sistema (congregações, membros, atas, eventos)
 templates/  páginas HTML (site público + personalização do painel admin)
 static/     CSS do site público e do painel admin
-media/      arquivos enviados pelos administradores (fotos de eventos, PDFs de atas)
+media/      arquivos enviados pelos administradores (fotos de eventos, PDFs de atas) — público
+media_privado/  comprovantes financeiros — NUNCA público, só via view autenticada
 backups/    backups automáticos dos dados (criado ao rodar manage.py backup_db)
 ```

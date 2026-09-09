@@ -46,6 +46,13 @@
   </div>
 {% endif %}
 
+{% if is_tesoureiro %}
+  <div class="efraim-dashboard">
+    <h2>🔒 Finanças</h2>
+    <p><a href="{% url 'admin:financeiro' %}">Ver saldo e extrato →</a></p>
+  </div>
+{% endif %}
+
 {{ block.super }}
 {% endblock %}
 

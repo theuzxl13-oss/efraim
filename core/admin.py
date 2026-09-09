@@ -1,12 +1,24 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User
-from django.db.models import Count
+from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Sum
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils import timezone
 
-from .models import AdminProfile, Congregation, Event, Member, Mensalidade, Minute
+from .models import (
+    AdminProfile,
+    Congregation,
+    Event,
+    Member,
+    Mensalidade,
+    Minute,
+    MovimentoFinanceiro,
+    SaldoInicial,
+)
 
 
 def add_months(data, n):
@@ -35,6 +47,17 @@ def is_geral(request):
 def my_congregation_id(request):
     profile = get_profile(request)
     return profile.congregation_id if profile else None
+
+
+def is_tesoureiro(request):
+    # Acesso a Finanças exige ser admin geral E ter o sinalizador de
+    # tesoureiro marcado explicitamente no próprio perfil — mesmo um
+    # superusuário não entra aqui sem esse perfil configurado. "Fail closed"
+    # de propósito, já que é a área mais sensível do sistema.
+    if not is_geral(request):
+        return False
+    profile = get_profile(request)
+    return bool(profile) and profile.is_tesoureiro
 
 
 class EfraimAdminSite(admin.AdminSite):
@@ -70,6 +93,7 @@ class EfraimAdminSite(admin.AdminSite):
             else:
                 extra_context["mensalidade_paga_este_mes"] = my_congregation_id(request) in pagas_ids
             extra_context["mensalidade_mes_atual"] = mes_atual
+            extra_context["is_tesoureiro"] = is_tesoureiro(request)
         return super().index(request, extra_context)
 
     def get_urls(self):
@@ -79,8 +103,63 @@ class EfraimAdminSite(admin.AdminSite):
                 self.admin_view(self.mensalidades_situacao_view),
                 name="mensalidades_situacao",
             ),
+            path("financeiro/", self.admin_view(self.financeiro_view), name="financeiro"),
+            path(
+                "financeiro/comprovante/<int:pk>/",
+                self.admin_view(self.financeiro_comprovante_view),
+                name="financeiro_comprovante",
+            ),
         ]
         return urls + super().get_urls()
+
+    def financeiro_view(self, request):
+        if not is_tesoureiro(request):
+            raise PermissionDenied("Acesso restrito ao tesoureiro.")
+
+        from django import forms
+
+        class SaldoInicialForm(forms.ModelForm):
+            class Meta:
+                model = SaldoInicial
+                fields = ["valor"]
+
+        saldo_inicial = SaldoInicial.obter()
+
+        if request.method == "POST":
+            form = SaldoInicialForm(request.POST, instance=saldo_inicial)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.atualizado_por = request.user
+                obj.save()
+                messages.success(request, "Saldo inicial atualizado.")
+                return redirect("admin:financeiro")
+        else:
+            form = SaldoInicialForm(instance=saldo_inicial)
+
+        movimentos = MovimentoFinanceiro.objects.select_related("created_by").all()
+        total_entradas = movimentos.filter(tipo="entrada").aggregate(s=Sum("valor"))["s"] or 0
+        total_saidas = movimentos.filter(tipo="saida").aggregate(s=Sum("valor"))["s"] or 0
+        saldo_atual = saldo_inicial.valor + total_entradas - total_saidas
+
+        context = {
+            **self.each_context(request),
+            "title": "Finanças",
+            "saldo_atual": saldo_atual,
+            "saldo_inicial": saldo_inicial,
+            "total_entradas": total_entradas,
+            "total_saidas": total_saidas,
+            "movimentos": movimentos,
+            "form_saldo_inicial": form,
+        }
+        return TemplateResponse(request, "admin/financeiro.html", context)
+
+    def financeiro_comprovante_view(self, request, pk):
+        if not is_tesoureiro(request):
+            raise PermissionDenied("Acesso restrito ao tesoureiro.")
+        movimento = get_object_or_404(MovimentoFinanceiro, pk=pk)
+        if not movimento.comprovante:
+            raise Http404("Este lançamento não tem comprovante anexado.")
+        return FileResponse(movimento.comprovante.open("rb"), filename=movimento.comprovante.name.split("/")[-1])
 
     def mensalidades_situacao_view(self, request):
         geral = is_geral(request)
@@ -239,6 +318,36 @@ class GeralOnlyAdmin(admin.ModelAdmin):
         return self._allowed(request)
 
 
+class TesoureiroOnlyAdmin(admin.ModelAdmin):
+    """Base para Finanças — só visível/editável por quem tem o sinalizador
+    de tesoureiro marcado no próprio perfil (nem todo admin geral vê)."""
+
+    exclude = ("created_by",)
+
+    def _allowed(self, request):
+        return bool(request.user.is_active and request.user.is_staff and is_tesoureiro(request))
+
+    def save_model(self, request, obj, form, change):
+        if hasattr(obj, "created_by_id") and not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def has_module_permission(self, request):
+        return self._allowed(request)
+
+    def has_view_permission(self, request, obj=None):
+        return self._allowed(request)
+
+    def has_add_permission(self, request):
+        return self._allowed(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self._allowed(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self._allowed(request)
+
+
 @admin.register(Congregation, site=site)
 class CongregationAdmin(GeralOnlyAdmin):
     list_display = ("name", "total_membros", "created_at")
@@ -263,6 +372,19 @@ class MinuteAdmin(GeralOnlyAdmin):
     list_filter = ("congregation", "published")
     search_fields = ("title", "notes")
     date_hierarchy = "meeting_date"
+
+
+@admin.register(MovimentoFinanceiro, site=site)
+class MovimentoFinanceiroAdmin(TesoureiroOnlyAdmin):
+    list_display = ("data", "tipo", "valor", "descricao_curta")
+    list_filter = ("tipo",)
+    search_fields = ("descricao",)
+    date_hierarchy = "data"
+
+    def descricao_curta(self, obj):
+        return obj.descricao[:60] + ("…" if len(obj.descricao) > 60 else "")
+
+    descricao_curta.short_description = "Descrição"
 
 
 @admin.register(Mensalidade, site=site)

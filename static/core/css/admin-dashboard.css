@@ -181,3 +181,151 @@
   background: #1565c0;
   color: #ffffff;
 }
+
+/* ---- Financas ---- */
+.efraim-aviso-privado {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  max-width: 640px;
+}
+
+.efraim-saldo-card {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 20px 26px;
+  max-width: 340px;
+  margin: 18px 0;
+}
+
+.efraim-saldo-card.negativo {
+  background: linear-gradient(135deg, #7a1f1f, #b71c1c);
+}
+
+.efraim-saldo-card .rotulo {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.efraim-saldo-card .numero {
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.efraim-financeiro-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.efraim-financeiro-resumo .item {
+  background: rgba(154, 165, 182, 0.1);
+  border-radius: 8px;
+  padding: 10px 16px;
+  min-width: 180px;
+}
+
+.efraim-financeiro-resumo .item .rotulo {
+  display: block;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+
+.efraim-financeiro-resumo .item .valor {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.efraim-financeiro-resumo .item.entrada .valor {
+  color: #43a047;
+}
+
+.efraim-financeiro-resumo .item.saida .valor {
+  color: #e53935;
+}
+
+.efraim-saldo-inicial-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 24px;
+  font-size: 0.9rem;
+}
+
+.efraim-saldo-inicial-form input {
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(154, 165, 182, 0.4);
+  width: 130px;
+}
+
+.efraim-saldo-inicial-form button {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: none;
+  background: #1565c0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.efraim-financeiro-acoes {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.efraim-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  color: #fff;
+}
+
+.efraim-btn.entrada {
+  background: #2e7d32;
+}
+
+.efraim-btn.saida {
+  background: #c62828;
+}
+
+.efraim-extrato-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 100%;
+  white-space: nowrap;
+}
+
+.efraim-extrato-table th,
+.efraim-extrato-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(154, 165, 182, 0.25);
+  white-space: normal;
+}
+
+.efraim-extrato-table th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.efraim-extrato-table tr.linha-entrada td:nth-child(4) {
+  color: #43a047;
+  font-weight: 700;
+}
+
+.efraim-extrato-table tr.linha-saida td:nth-child(4) {
+  color: #e53935;
+  font-weight: 700;
+}
+
+.efraim-sem-comprovante {
+  opacity: 0.5;
+}

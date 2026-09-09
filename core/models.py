@@ -1,6 +1,15 @@
+from decimal import Decimal
+
 from django.conf import settings
-from django.core.validators import FileExtensionValidator
+from django.core.files.storage import FileSystemStorage
+from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
+
+# Armazenamento privado: fica FORA da pasta "media" pública (que o
+# PythonAnywhere serve direto pela web, sem exigir login). Arquivos aqui só
+# podem ser baixados através de uma view do Django que confere se quem está
+# pedindo é o tesoureiro — nunca por link direto.
+private_storage = FileSystemStorage(location=str(settings.PRIVATE_MEDIA_ROOT), base_url=None)
 
 
 class Congregation(models.Model):
@@ -31,6 +40,11 @@ class AdminProfile(models.Model):
         related_name="admins",
         verbose_name="Congregação",
         help_text="Deixe em branco para acesso geral (todas as congregações).",
+    )
+    is_tesoureiro = models.BooleanField(
+        "É tesoureiro (acesso a Finanças)",
+        default=False,
+        help_text="Só quem tiver isso marcado — além de ser administrador geral — vê o setor de Finanças.",
     )
 
     class Meta:
@@ -206,3 +220,66 @@ class Mensalidade(models.Model):
 
     def __str__(self):
         return f"{self.congregation.name} — {self.mes_referencia:%m/%Y}"
+
+
+class SaldoInicial(models.Model):
+    """Linha única representando o saldo de caixa antes do primeiro
+    lançamento registrado no sistema (ex: dinheiro que já existia no caixa
+    quando o controle pelo sistema começou)."""
+
+    valor = models.DecimalField("Saldo inicial do caixa", max_digits=10, decimal_places=2, default=0)
+    atualizado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    atualizado_em = models.DateTimeField("Atualizado em", auto_now=True)
+
+    class Meta:
+        verbose_name = "Saldo inicial"
+        verbose_name_plural = "Saldo inicial"
+
+    def __str__(self):
+        return f"Saldo inicial: R$ {self.valor}"
+
+    @classmethod
+    def obter(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+TIPO_MOVIMENTO_CHOICES = [
+    ("entrada", "Entrada"),
+    ("saida", "Saída"),
+]
+
+
+class MovimentoFinanceiro(models.Model):
+    tipo = models.CharField("Tipo", max_length=10, choices=TIPO_MOVIMENTO_CHOICES)
+    data = models.DateField("Data")
+    valor = models.DecimalField(
+        "Valor", max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
+    )
+    descricao = models.TextField(
+        "Descrição",
+        help_text="O que foi comprado (e por quê), ou de onde veio a entrada (e por quê).",
+    )
+    comprovante = models.FileField(
+        "Comprovante",
+        upload_to="financeiro/%Y/%m/",
+        storage=private_storage,
+        validators=[FileExtensionValidator(["pdf", "jpg", "jpeg", "png"])],
+        blank=True,
+        help_text="Nota fiscal, comprovante do Pix, etc. Fica guardado de forma privada — só o tesoureiro acessa.",
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    created_at = models.DateTimeField("Criado em", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Movimento financeiro"
+        verbose_name_plural = "Finanças (movimentos)"
+        ordering = ["-data", "-created_at"]
+
+    def __str__(self):
+        sinal = "+" if self.tipo == "entrada" else "-"
+        return f"{sinal} R$ {self.valor} — {self.data:%d/%m/%Y}"

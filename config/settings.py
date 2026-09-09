@@ -156,9 +156,15 @@ STORAGES = {
     },
 }
 
-# Arquivos enviados pelos administradores (fotos de eventos, PDFs de atas)
+# Arquivos enviados pelos administradores (fotos de eventos, PDFs de atas) —
+# esta pasta é servida publicamente (sem exigir login) pelo servidor web.
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Arquivos privados (comprovantes financeiros) — NUNCA mapear esta pasta como
+# "static/media" no servidor web (PythonAnywhere). Só é acessível através da
+# view de download protegida em core/views.py.
+PRIVATE_MEDIA_ROOT = BASE_DIR / 'media_privado'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
