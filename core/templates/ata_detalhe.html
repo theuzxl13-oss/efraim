@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ata.title }} — Varões Efraim{% endblock %}
+
+{% block content %}
+<p><a class="btn" href="{% url 'core:atas' %}">← Voltar para Atas de Reuniões</a></p>
+
+<section class="hero">
+  <span class="card-tag">{% if ata.congregation %}{{ ata.congregation.name }}{% else %}Setor 46{% endif %}</span>
+  <h1>{{ ata.title }}</h1>
+  <p class="meta">Reunião em {{ ata.meeting_date|date:"d/m/Y" }}</p>
+</section>
+
+{% if ata.notes %}
+  <div class="ata-conteudo">
+    {{ ata.notes|linebreaks }}
+  </div>
+{% endif %}
+
+{% if ata.file %}
+  <h2 class="section-title">Documento da ata (PDF)</h2>
+  <div class="ata-pdf-viewer">
+    <iframe src="{{ ata.file.url }}" title="PDF da ata: {{ ata.title }}"></iframe>
+  </div>
+  <p><a class="btn" href="{{ ata.file.url }}" target="_blank" rel="noopener">Abrir PDF em outra aba / baixar →</a></p>
+{% elif not ata.notes %}
+  <div class="empty-state">Esta ata ainda não tem conteúdo cadastrado.</div>
+{% endif %}
+{% endblock %}

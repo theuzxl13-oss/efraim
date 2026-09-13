@@ -1,5 +1,5 @@
 from django.db.models.functions import ExtractDay
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
 from .models import Congregation, Event, Member, Minute
@@ -60,6 +60,13 @@ def atas(request):
             "congregacao_selecionada": request.GET.get("congregacao", ""),
         },
     )
+
+
+def ata_detalhe(request, pk):
+    ata = get_object_or_404(
+        Minute.objects.select_related("congregation"), pk=pk, published=True
+    )
+    return render(request, "core/ata_detalhe.html", {"ata": ata})
 
 
 def aniversariantes(request):

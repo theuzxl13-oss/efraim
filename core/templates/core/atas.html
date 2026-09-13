@@ -27,7 +27,10 @@
           <h3>{{ ata.title }}</h3>
           <span class="meta">{{ ata.meeting_date|date:"d/m/Y" }}</span>
           {% if ata.notes %}<p>{{ ata.notes|truncatewords:30 }}</p>{% endif %}
-          {% if ata.file %}<a class="btn" href="{{ ata.file.url }}" target="_blank" rel="noopener">Baixar PDF →</a>{% endif %}
+          <div class="btn-row">
+            <a class="btn" href="{% url 'core:ata_detalhe' ata.id %}">Ler ata →</a>
+            {% if ata.file %}<a class="btn" href="{{ ata.file.url }}" target="_blank" rel="noopener">Baixar PDF →</a>{% endif %}
+          </div>
         </div>
       </div>
     {% endfor %}
