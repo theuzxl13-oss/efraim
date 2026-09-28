@@ -6,6 +6,5 @@ media/
 media_privado/
 staticfiles/
 .env
-.claude/
 backups/
 .vs/
