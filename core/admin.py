@@ -1,15 +1,17 @@
 from django.contrib import admin, messages
+from django.contrib.admin.options import IncorrectLookupParameters
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Sum
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils import timezone
 
 from .models import (
+    CARGO_CHOICES,
     AdminProfile,
     Congregation,
     Event,
@@ -364,6 +366,51 @@ class MemberAdmin(CongregationScopedAdmin):
     list_display = ("full_name", "congregation", "cargo", "birth_date")
     list_filter = ("congregation", "cargo")
     search_fields = ("full_name",)
+    change_list_template = "admin/core/member/change_list.html"
+
+    def get_urls(self):
+        urls = [
+            path("pdf/", self.admin_site.admin_view(self.lista_pdf_view), name="core_member_pdf"),
+        ]
+        return urls + super().get_urls()
+
+    def lista_pdf_view(self, request):
+        """Gera um PDF com a lista de membros, respeitando o escopo do
+        administrador (geral vê todos, congregação só a sua) e os mesmos
+        filtros/busca aplicados na tela de listagem."""
+        from .pdf import gerar_pdf_membros
+
+        if not self.has_view_permission(request):
+            raise PermissionDenied
+        try:
+            changelist = self.get_changelist_instance(request)
+        except IncorrectLookupParameters:
+            return redirect("admin:core_member_changelist")
+        membros = (
+            changelist.get_queryset(request)
+            .select_related("congregation")
+            .order_by("congregation__name", "full_name")
+        )
+
+        filtros = []
+        cid = request.GET.get("congregation__id__exact")
+        if cid and cid.isdigit():
+            nome = Congregation.objects.filter(pk=cid).values_list("name", flat=True).first()
+            if nome:
+                filtros.append(f"Congregação: {nome}")
+        cargo = dict(CARGO_CHOICES).get(request.GET.get("cargo__exact"))
+        if cargo:
+            filtros.append(f"Cargo: {cargo}")
+        busca = request.GET.get("q", "").strip()
+        if busca:
+            filtros.append(f"Busca: “{busca}”")
+
+        pdf = gerar_pdf_membros(membros, " · ".join(filtros))
+        resposta = HttpResponse(pdf, content_type="application/pdf")
+        nome_arquivo = f"lista-membros-{timezone.localdate():%Y-%m-%d}.pdf"
+        # "inline" abre o PDF no navegador, de onde dá para imprimir ou baixar.
+        resposta["Content-Disposition"] = f'inline; filename="{nome_arquivo}"'
+        return resposta
 
 
 @admin.register(Minute, site=site)

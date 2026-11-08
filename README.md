@@ -22,6 +22,15 @@ Diácono, Presbítero, Evangelista ou Pastor). Um administrador de congregação
 cadastra membros na sua própria congregação; o administrador geral pode cadastrar
 em qualquer uma.
 
+### Imprimir a lista de membros (PDF)
+
+Na tela **Membros** do painel há o botão **"🖨️ Imprimir lista (PDF)"**, no canto
+superior direito. Ele abre um PDF (A4) com os membros agrupados por congregação —
+nome, cargo e data de nascimento — com o total de cada congregação e o total geral.
+O PDF respeita os filtros e a busca aplicados na tela (por exemplo, filtre por uma
+congregação ou por cargo antes de clicar) e o escopo de quem está logado: o admin de
+congregação só imprime os membros da própria congregação.
+
 ## Atas e eventos
 
 Em **Atas de reuniões** e **Eventos**, cada registro pode ser vinculado a uma
